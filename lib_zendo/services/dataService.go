@@ -4,9 +4,9 @@ import (
 	"os"
 	"strings"
 	"time"
-	"zendo/data_fetcher/errors"
-	"zendo/data_fetcher/model"
-	"zendo/data_fetcher/utils"
+	"zendo/lib_zendo/errors"
+	"zendo/lib_zendo/model"
+	"zendo/lib_zendo/utils"
 
 	"go.uber.org/zap"
 )
@@ -16,6 +16,8 @@ type IDataService interface {
 	SeedHistoricalData(energyData *[]model.LatestEnergeyResponse, weatherData *[]model.WeatherResponse) error
 	GetLatestWeatherDate() (*time.Time, error)
 	GetLatestEnergyDate() (*time.Time, error)
+	GetLatestMetric() (*model.Metric, error)
+	Get24HoursOfMetrics() (*[]model.Metric, error)
 }
 
 type CouchDBDataService struct {
@@ -127,6 +129,57 @@ func (s *CouchDBDataService) GetLatestEnergyDate() (*time.Time, error) {
 	return body.Rows[0].Doc.Timestamp, nil
 }
 
+// TODO: This is not the cleanest, want better inheritance
+type CouchDBViewMetricMetadata struct {
+	Id  string       `json:"id"`
+	Doc model.Metric `json:"doc"`
+}
+
+type CouchDBMetricViewResponse struct {
+	Rows []CouchDBViewMetricMetadata `json:"rows"`
+}
+
+func (s *CouchDBDataService) GetLatestMetric() (*model.Metric, error) {
+	var body CouchDBMetricViewResponse
+	result, err := s.Http.Get(latestMetricUrl(), &body)
+	if err != nil {
+		zap.L().DPanic("Failed to get latest metric", zap.Error(err))
+		return nil, &errors.HttpError{
+			StatusCode: result.StatusCode,
+		}
+	}
+
+	if len(body.Rows) == 0 {
+		// no data
+		return nil, nil
+	}
+
+	return &body.Rows[0].Doc, nil
+}
+
+func (s *CouchDBDataService) Get24HoursOfMetrics() (*[]model.Metric, error) {
+	var body CouchDBMetricViewResponse
+	result, err := s.Http.Get(last24HoursMetricUrl(), &body)
+	if err != nil {
+		zap.L().DPanic("Failed to get 24 hours of metrics", zap.Error(err))
+		return nil, &errors.HttpError{
+			StatusCode: result.StatusCode,
+		}
+	}
+
+	if len(body.Rows) == 0 {
+		// no data
+		return &[]model.Metric{}, nil
+	}
+
+	data := make([]model.Metric, len(body.Rows))
+	for i := range body.Rows {
+		data[i] = body.Rows[i].Doc
+	}
+
+	return &data, nil
+}
+
 // private
 
 func baseUrl() string {
@@ -156,9 +209,27 @@ func latestWeatherUrl() string {
 	return builder.String()
 }
 
+func latestMetricUrl() string {
+	var builder strings.Builder
+	builder.WriteString(baseUrl())
+	builder.WriteString("/_design/views/_view/aggregated_by_time?include_docs=true&descending=true&limit=1")
+	return builder.String()
+}
+
+func last24HoursMetricUrl() string {
+	yesterday := time.Now().Add(-time.Hour * 24)
+
+	var builder strings.Builder
+	builder.WriteString(baseUrl())
+	builder.WriteString("/_design/views/_view/aggregated_by_time?include_docs=true&descending=true&startKey=\"")
+	builder.WriteString(yesterday.Format(time.RFC3339))
+	builder.WriteString("\"")
+	return builder.String()
+}
+
 func latestEnergyUrl() string {
 	var builder strings.Builder
 	builder.WriteString(baseUrl())
-	builder.WriteString("/_design/views/_view/energy_by_time?include_docs=true&descending=true&limit=1")
+	builder.WriteString("/_design/views/_view/aggregated_by_time?include_docs=true&descending=true&limit=1")
 	return builder.String()
 }

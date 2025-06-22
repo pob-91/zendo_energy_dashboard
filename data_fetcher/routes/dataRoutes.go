@@ -3,6 +3,7 @@ package routes
 import (
 	"net/http"
 	"zendo/data_fetcher/services"
+	libServices "zendo/lib_zendo/services"
 
 	"go.uber.org/zap"
 )
@@ -10,10 +11,12 @@ import (
 type DataRoutes struct {
 	ElectricService services.IElectricService
 	WeatherService  services.IWeatherService
-	DataService     services.IDataService
+	DataService     libServices.IDataService
 }
 
 func (r *DataRoutes) GetLatest(resp http.ResponseWriter, req *http.Request) {
+	zap.L().Info("Running data update...")
+
 	latestWeatherUpdate, err := r.DataService.GetLatestWeatherDate()
 	if err != nil {
 		zap.L().DPanic("Failed to get latest weather update time")

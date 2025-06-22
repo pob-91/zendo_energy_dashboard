@@ -4,6 +4,7 @@ import aiohttp
 import logging
 
 from datetime import datetime, timedelta, timezone
+from re import error
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +42,9 @@ class DataService:
             async with session.post(
                 DataService.bulk_upload_url(), json={"docs": data_points}
             ) as resp:
-                logger.info(f"statis: {resp.status}")
+                if resp.status != 201:
+                    content = await resp.content.read()
+                    logger.error(f"Failed to create data points: {content=}")
                 return resp.status == 201
 
     @staticmethod

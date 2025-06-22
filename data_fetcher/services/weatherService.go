@@ -2,9 +2,9 @@ package services
 
 import (
 	"time"
-	"zendo/data_fetcher/errors"
-	"zendo/data_fetcher/model"
-	"zendo/data_fetcher/utils"
+	"zendo/lib_zendo/errors"
+	"zendo/lib_zendo/model"
+	"zendo/lib_zendo/utils"
 
 	"go.uber.org/zap"
 )

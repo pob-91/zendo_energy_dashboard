@@ -1,4 +1,4 @@
-module zendo/data_fetcher
+module zendo/api
 
 go 1.24.4
 

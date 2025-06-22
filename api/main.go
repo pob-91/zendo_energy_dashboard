@@ -5,9 +5,8 @@ import (
 	"net/http"
 	"os"
 	"time"
-	"zendo/data_fetcher/routes"
-	"zendo/data_fetcher/services"
-	libServices "zendo/lib_zendo/services"
+	"zendo/api/routes"
+	"zendo/lib_zendo/services"
 	"zendo/lib_zendo/utils"
 
 	"github.com/joho/godotenv"
@@ -63,37 +62,41 @@ func main() {
 	mux := http.NewServeMux()
 
 	// setup any auth / cors / logging middleware
+	corsHandler := func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+			w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+			if r.Method == "OPTIONS" {
+				w.WriteHeader(http.StatusOK)
+				return
+			}
+			next.ServeHTTP(w, r)
+		})
+	}
 
 	// setup dependencies
 
 	httpClient := utils.HttpClient{}
 
-	electricSerice := services.ElectricitymapService{
-		Http: &httpClient,
-	}
-	weatherService := services.OpenMeteoWeatherService{
-		Http: &httpClient,
-	}
-
-	dataService := libServices.CouchDBDataService{
+	dataService := services.CouchDBDataService{
 		Http: &httpClient,
 	}
 
 	// setup routes and inject dependencies
 	dataRoutes := routes.DataRoutes{
-		ElectricService: &electricSerice,
-		WeatherService:  &weatherService,
-		DataService:     &dataService,
+		DataService: &dataService,
 	}
 
 	// register routes
-	mux.HandleFunc("/update", dataRoutes.GetLatest)
-	mux.HandleFunc("/seed", dataRoutes.Seed24Hrs)
+	mux.HandleFunc("/energy-summary", dataRoutes.GetLatestMetric)
+	mux.HandleFunc("/historical-data", dataRoutes.GetTimeSeriesMetrics)
 
 	// configure server
 	server := &http.Server{
-		Addr:         ":8080",
-		Handler:      mux,
+		Addr:         ":8081",
+		Handler:      corsHandler(mux),
 		ReadTimeout:  15 * time.Second,
 		WriteTimeout: 15 * time.Second,
 		IdleTimeout:  60 * time.Second,

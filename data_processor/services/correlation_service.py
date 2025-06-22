@@ -39,10 +39,19 @@ class CorrelationService:
             logger.info("Not enough data to calculate correlation")
             return None
 
+        # check data
+        if merged["radiation"].isna().all() or merged["solar"].isna().all():
+            logger.warning("All values are NaN for correlation calculation")
+            return None
+
+        if merged["radiation"].std() == 0 or merged["solar"].std() == 0:
+            logger.warning("Zero variance detected - cannot calculate correlation")
+            return None
+
         # calculate correlation
         pearson_corr = merged["radiation"].corr(merged["solar"])
 
-        return pearson_corr
+        return float(pearson_corr)
 
     def calculate_temp_consumption_correlation(
         self, weather_data, energy_data
@@ -78,7 +87,16 @@ class CorrelationService:
             logger.info("Not enough data to calculate correlation")
             return None
 
+        # check data
+        if merged["temperature"].isna().all() or merged["consumption"].isna().all():
+            logger.warning("All values are NaN for correlation calculation")
+            return None
+
+        if merged["temperature"].std() == 0 or merged["consumption"].std() == 0:
+            logger.warning("Zero variance detected - cannot calculate correlation")
+            return None
+
         # calculate correlation
         pearson_corr = merged["temperature"].corr(merged["consumption"])
 
-        return pearson_corr
+        return float(pearson_corr)
