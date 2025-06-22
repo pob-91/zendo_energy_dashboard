@@ -15,9 +15,9 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  BarChart,
-  Bar,
-  LabelList,
+  RadialBarChart,
+  RadialBar,
+  Legend,
 } from "recharts";
 
 import { Metric } from "../model";
@@ -30,17 +30,37 @@ const Dashboard: FunctionComponent = () => {
   const timeout = useRef<NodeJS.Timeout | null>(null);
 
   const correlationData = useMemo(() => {
+    function interpolateColor(value: number): string {
+      // Clamp between 0 and 1
+      const clamped = Math.max(0, Math.min(1, Math.abs(value)));
+
+      // From gray: rgb(150, 150, 150)
+      // To green:  rgb(196, 240, 125)
+      const r = Math.round(150 + (196 - 150) * clamped);
+      const g = Math.round(150 + (240 - 150) * clamped);
+      const b = Math.round(150 + (125 - 150) * clamped);
+
+      return `rgb(${r},${g},${b})`;
+    }
+
     return [
       {
         name: "Solar vs Production",
         value:
           latestData?.correlations
             .solarIrradianceVsSolarProductionCorrelation || 0,
+        fill: interpolateColor(
+          latestData?.correlations
+            .solarIrradianceVsSolarProductionCorrelation || 0,
+        ),
       },
       {
         name: "Temp vs Consumption",
         value:
           latestData?.correlations.temperatureVsConsumptionCorrelation || 0,
+        fill: interpolateColor(
+          latestData?.correlations.temperatureVsConsumptionCorrelation || 0,
+        ),
       },
     ];
   }, [latestData]);
@@ -51,7 +71,7 @@ const Dashboard: FunctionComponent = () => {
     setLatestData(result.data);
 
     const historical = await DataService.getTimeSeriesData();
-    setHistoricalData(historical.data || []);
+    setHistoricalData((historical.data || []).reverse());
   }, []);
 
   // lifecycle
@@ -87,8 +107,11 @@ const Dashboard: FunctionComponent = () => {
 
   // render
   return (
-    <div className="w-svh h-svh grid grid-cols-2 gap-4">
-      <div className="flex flex-col items-center justify-center">
+    <div className="w-full h-svh grid grid-cols-2 gap-4 p-8 bg-[#8C97ED33]">
+      <div className="col-span-2 text-3xl text-center p-8 bg-[#001744] text-white font-bold rounded-lg shadow-md shadow-gray-400 border border-gray-100">
+        Zendo Energy Dashboard
+      </div>
+      <div className="flex flex-col items-center justify-center p-8 bg-[#001744] rounded-lg shadow-md shadow-gray-400 border border-gray-100 text-[#C4F07D] font-bold text-xl">
         <div>
           {`Total Energy Production: ${latestData?.totalProduction} kw/h`}
         </div>
@@ -97,7 +120,7 @@ const Dashboard: FunctionComponent = () => {
         </div>
         <div>{`Net Balance: ${latestData?.netBalance} kw/h`}</div>
       </div>
-      <div className="flex flex-col items-center justify-center">
+      <div className="flex flex-col items-center justify-center bg-[#001744] p-8 rounded-lg shadow-md shadow-gray-400 border border-gray-100 text-[#C4F07D] font-bold text-xl">
         <div>{`Temperature: ${latestData?.weatherData.temperature} deg C`}</div>
         <div>
           {`Cloud Cover: ${latestData?.weatherData.cloudCoverPercent} %`}
@@ -108,8 +131,9 @@ const Dashboard: FunctionComponent = () => {
       {historicalData.length === 0 && <div>No historical data...</div>}
       {historicalData.length > 0 && (
         <>
-          <div className="col-span-2">
-            <ResponsiveContainer width="99%" height="100%">
+          <div className="col-span-2 flex flex-col bg-white justify-center p-8 rounded-lg shadow-md shadow-gray-400 border border-gray-100">
+            <div className="text-xl text-center mb-4">Net Balance</div>
+            <ResponsiveContainer width="90%" height="100%">
               <LineChart data={historicalData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="timestamp" tickFormatter={formatDate} />
@@ -125,8 +149,11 @@ const Dashboard: FunctionComponent = () => {
               </LineChart>
             </ResponsiveContainer>
           </div>
-          <div>
-            <ResponsiveContainer width="99%" height="100%">
+          <div className="flex flex-col bg-white justify-center p-8 rounded-lg shadow-md shadow-gray-400 border border-gray-100">
+            <div className="text-xl text-center mb-4">
+              Solar Radiation vs Production
+            </div>
+            <ResponsiveContainer width="90%" height="100%">
               <LineChart data={historicalData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="timestamp" tickFormatter={formatDate} />
@@ -152,8 +179,11 @@ const Dashboard: FunctionComponent = () => {
               </LineChart>
             </ResponsiveContainer>
           </div>
-          <div>
-            <ResponsiveContainer width="99%" height="100%">
+          <div className="flex flex-col justify-center p-8 bg-white rounded-lg shadow-md shadow-gray-400 border border-gray-100">
+            <div className="text-xl text-center mb-4">
+              Temperature vs Consumption
+            </div>
+            <ResponsiveContainer width="90%" height="100%">
               <LineChart data={historicalData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="timestamp" tickFormatter={formatDate} />
@@ -179,37 +209,37 @@ const Dashboard: FunctionComponent = () => {
               </LineChart>
             </ResponsiveContainer>
           </div>
-          <div className="col-span-2">
-            <ResponsiveContainer width="99%" height="100%">
-              <BarChart
+          <div className="col-span-2 flex flex-col justify-center p-8 rounded-lg shadow-md shadow-gray-400 border border-gray-100 bg-[#001744]">
+            <div className="text-xl text-center mb-4 text-white">
+              Correlations
+            </div>
+            <ResponsiveContainer width="90%" height="100%">
+              <RadialBarChart
+                innerRadius="10%"
+                outerRadius="80%"
                 data={correlationData}
-                margin={{ top: 20, right: 30, left: 20, bottom: 40 }}
-                barCategoryGap="30%"
+                startAngle={180}
+                endAngle={0}
               >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis
-                  dataKey="name"
-                  angle={-30}
-                  textAnchor="end"
-                  interval={0}
-                  height={60}
-                />
-                <YAxis domain={[-1, 1]} />
-                <Tooltip formatter={(value: number) => value.toFixed(2)} />
-                <Bar
+                <RadialBar
+                  label={{
+                    fill: "#666",
+                    position: "insideStart",
+                    formatter: (v: number) => v.toFixed(2),
+                  }}
+                  background
                   dataKey="value"
-                  isAnimationActive={false}
-                  radius={[5, 5, 0, 0]}
-                  // dynamically set fill per bar
-                  fill="#8884d8"
-                >
-                  <LabelList
-                    dataKey="value"
-                    position="top"
-                    formatter={(value: number) => value.toFixed(2)}
-                  />
-                </Bar>
-              </BarChart>
+                />
+                <Legend
+                  iconSize={10}
+                  width={120}
+                  height={140}
+                  layout="vertical"
+                  verticalAlign="middle"
+                  align="right"
+                />
+                <Tooltip formatter={(value: number) => value.toFixed(2)} />
+              </RadialBarChart>
             </ResponsiveContainer>
           </div>
         </>
