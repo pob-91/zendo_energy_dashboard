@@ -8,7 +8,8 @@
 
 ### Requirements
 
-- TODO
+- docker & docker compose
+- curl
 
 ### Getting Started
 
