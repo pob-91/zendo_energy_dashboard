@@ -1,0 +1,21 @@
+services:
+  main-db:
+    image: couchdb:3
+    restart: always
+    environment:
+      - COUCHDB_USER=admin
+      - COUCHDB_PASSWORD=password
+    ports:
+      - "5984:5984"
+    volumes:
+      - couchdb_data:/opt/couchdb/data
+      - ./couchdb/local.ini:/opt/couchdb/etc/local.ini
+    networks:
+      - internal_network
+
+volumes:
+  couchdb_data:
+
+networks:
+  internal_network:
+    name: internal_network

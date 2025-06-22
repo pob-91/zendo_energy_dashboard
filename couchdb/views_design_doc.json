@@ -1,0 +1,15 @@
+{
+  "_id": "_design/by_time",
+  "views": {
+    "weather_by_time": {
+      "map": "function (doc) { if (doc.type === 'WEATHER_DATA' && doc.timestamp) { emit(doc.timestamp, null); } }"
+    },
+    "energy_by_time": {
+      "map": "function (doc) { if (doc.type === 'ENERGY_DATA' && doc.timestamp) { emit(doc.timestamp, null); } }"
+    },
+    "aggregated_by_time": {
+      "map": "function (doc) { if (doc.type === 'AGGREGATED_DATA' && doc.timestamp) { emit(doc.timestamp, null); } }"
+    }
+  },
+  "language": "javascript"
+}
