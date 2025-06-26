@@ -1,10 +1,10 @@
 .PHONY: start up down logs clean trash
 
 start:
-	if [ -z "$$(docker images -q data-fetcher:latest)" ]; then cd data_fetcher && bash build.sh; fi
+	if [ -z "$$(docker images -q zendo-data-fetcher:latest)" ]; then cd data_fetcher && bash build.sh; fi
 	if [ -z "$$(docker images -q zendo-api:latest)" ]; then cd api && bash build.sh; fi
 	if [ -z "$$(docker images -q zendo-web-app:latest)" ]; then cd web_client && bash build.sh; fi
-	if [ -z "$$(docker images -q data-processor:latest)" ]; then cd data_processor && bash build.sh; fi
+	if [ -z "$$(docker images -q zendo-data-processor:latest)" ]; then cd data_processor && bash build.sh; fi
 	if [ -z "$$(docker images -q zendo-cron:latest)" ]; then cd cron && bash build.sh; fi
 	docker compose -f docker-compose.yml up -d main-db data-fetcher
 	sleep 5 # this is not great but docker compose waiting is a pain

@@ -10,7 +10,7 @@ export class WeatherData {
     temperature: number,
     radiation: number,
     cloudCoverPercent: number,
-    windSpeed: number,
+    windSpeed: number
   ) {
     this.temperature = temperature;
     this.radiation = radiation;
@@ -20,10 +20,10 @@ export class WeatherData {
 
   static fromJson(json: any): WeatherData {
     return new WeatherData(
-      json["temperature_2m"],
-      json["direct_radiation"],
-      json["cloud_cover"],
-      json["wind_speed_10m"],
+      json['temperature_2m'],
+      json['direct_radiation'],
+      json['cloud_cover'],
+      json['wind_speed_10m']
     );
   }
 }
@@ -48,18 +48,18 @@ export class PowerProductionBreakdown {
 
   static fromJson(json: any): PowerProductionBreakdown {
     return new PowerProductionBreakdown({
-      nuclear: json["nuclear"],
-      geothermal: json["geothermal"],
-      biomass: json["biomass"],
-      coal: json["coal"],
-      wind: json["wind"],
-      solar: json["solar"],
-      hydro: json["hydro"],
-      gas: json["gas"],
-      oil: json["oil"],
-      unknown: json["unknown"],
-      hydroDischarge: json["hydro discharge"],
-      batteryDischarge: json["battery discharge"],
+      nuclear: json['nuclear'],
+      geothermal: json['geothermal'],
+      biomass: json['biomass'],
+      coal: json['coal'],
+      wind: json['wind'],
+      solar: json['solar'],
+      hydro: json['hydro'],
+      gas: json['gas'],
+      oil: json['oil'],
+      unknown: json['unknown'],
+      hydroDischarge: json['hydro discharge'],
+      batteryDischarge: json['battery discharge']
     });
   }
 }
@@ -84,18 +84,18 @@ export class PowerConsumptionBreakdown {
 
   static fromJson(json: any): PowerConsumptionBreakdown {
     return new PowerConsumptionBreakdown({
-      nuclear: json["nuclear"],
-      geothermal: json["geothermal"],
-      biomass: json["biomass"],
-      coal: json["coal"],
-      wind: json["wind"],
-      solar: json["solar"],
-      hydro: json["hydro"],
-      gas: json["gas"],
-      oil: json["oil"],
-      unknown: json["unknown"],
-      hydroDischarge: json["hydro discharge"],
-      batteryDischarge: json["battery discharge"],
+      nuclear: json['nuclear'],
+      geothermal: json['geothermal'],
+      biomass: json['biomass'],
+      coal: json['coal'],
+      wind: json['wind'],
+      solar: json['solar'],
+      hydro: json['hydro'],
+      gas: json['gas'],
+      oil: json['oil'],
+      unknown: json['unknown'],
+      hydroDischarge: json['hydro discharge'],
+      batteryDischarge: json['battery discharge']
     });
   }
 }
@@ -106,7 +106,7 @@ export class CorrelationData {
 
   constructor(
     solarIrradianceVsSolarProductionCorrelation: number | null,
-    temperatureVsConsumptionCorrelation: number | null,
+    temperatureVsConsumptionCorrelation: number | null
   ) {
     this.solarIrradianceVsSolarProductionCorrelation =
       solarIrradianceVsSolarProductionCorrelation;
@@ -116,8 +116,8 @@ export class CorrelationData {
 
   static fromJson(json: any): CorrelationData {
     return new CorrelationData(
-      json["solar_irradiance_vs_solar_production_correlation"],
-      json["temperature_vs_consumption_correlation"],
+      json['solar_irradiance_vs_solar_production_correlation'],
+      json['temperature_vs_consumption_correlation']
     );
   }
 }
@@ -141,7 +141,7 @@ export class Metric {
     weatherData: WeatherData,
     powerProductionData: PowerProductionBreakdown,
     powerConsumptionData: PowerConsumptionBreakdown,
-    correlations: CorrelationData,
+    correlations: CorrelationData
   ) {
     this.timestamp = timestamp;
     this.totalProduction = totalProduction;
@@ -155,14 +155,14 @@ export class Metric {
 
   static fromJson(json: any): Metric {
     return new Metric(
-      new Date(json["timestamp"]),
-      json["totalProduction"],
-      json["totalConsumption"],
-      json["netBalance"],
-      WeatherData.fromJson(json["weatherData"]),
-      PowerProductionBreakdown.fromJson(json["powerProductionData"]),
-      PowerConsumptionBreakdown.fromJson(json["powerConsumptionData"]),
-      CorrelationData.fromJson(json["correlations"]),
+      new Date(json['timestamp']),
+      json['totalProduction'],
+      json['totalConsumption'],
+      json['netBalance'],
+      WeatherData.fromJson(json['weatherData']),
+      PowerProductionBreakdown.fromJson(json['powerProductionData']),
+      PowerConsumptionBreakdown.fromJson(json['powerConsumptionData']),
+      CorrelationData.fromJson(json['correlations'])
     );
   }
 }

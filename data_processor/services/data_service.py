@@ -4,7 +4,6 @@ import aiohttp
 import logging
 
 from datetime import datetime, timedelta, timezone
-from re import error
 
 logger = logging.getLogger(__name__)
 

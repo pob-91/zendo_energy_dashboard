@@ -1,6 +1,6 @@
 const apiUrl = import.meta.env.VITE_API_URL;
 
-import { Metric, type HttpResponse } from "../model";
+import { Metric, type HttpResponse } from '../model';
 
 interface IDataService {
   getLatestMetric(): Promise<HttpResponse<Metric>>;
@@ -9,7 +9,7 @@ interface IDataService {
 
 export const DataService: IDataService = {
   getLatestMetric,
-  getTimeSeriesData,
+  getTimeSeriesData
 };
 
 async function getLatestMetric(): Promise<HttpResponse<Metric>> {
@@ -17,13 +17,13 @@ async function getLatestMetric(): Promise<HttpResponse<Metric>> {
 
   try {
     const response = await fetch(url, {
-      method: "GET",
+      method: 'GET'
     });
 
     if (response.status !== 200) {
       return {
         success: false,
-        code: response.status,
+        code: response.status
       };
     }
 
@@ -31,12 +31,12 @@ async function getLatestMetric(): Promise<HttpResponse<Metric>> {
     return {
       success: true,
       code: 200,
-      data: Metric.fromJson(json),
+      data: Metric.fromJson(json)
     };
   } catch {
     return {
       success: false,
-      code: 500,
+      code: 500
     };
   }
 }
@@ -46,13 +46,13 @@ async function getTimeSeriesData(): Promise<HttpResponse<Metric[]>> {
 
   try {
     const response = await fetch(url, {
-      method: "GET",
+      method: 'GET'
     });
 
     if (response.status !== 200) {
       return {
         success: false,
-        code: response.status,
+        code: response.status
       };
     }
 
@@ -60,12 +60,12 @@ async function getTimeSeriesData(): Promise<HttpResponse<Metric[]>> {
     return {
       success: true,
       code: 200,
-      data: json.map((e) => Metric.fromJson(e)),
+      data: json.map(e => Metric.fromJson(e))
     };
   } catch {
     return {
       success: false,
-      code: 500,
+      code: 500
     };
   }
 }

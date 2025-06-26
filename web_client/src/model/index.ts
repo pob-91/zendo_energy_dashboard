@@ -1,2 +1,2 @@
-export * from "./httpResponse";
-export * from "./metric";
+export * from './httpResponse';
+export * from './metric';

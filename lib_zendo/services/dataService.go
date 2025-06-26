@@ -32,6 +32,13 @@ func (s *CouchDBDataService) PostLatestData(energy *model.LatestEnergeyResponse,
 		return &errors.DatabaseError{}
 	}
 
+	if weather != nil {
+		zap.L().Info("Adding new weather data point", zap.Timep("timestamp", weather.Timestamp))
+	}
+	if energy != nil {
+		zap.L().Info("Adding new energy data point", zap.Timep("timestamp", energy.Timestamp))
+	}
+
 	payloadSlice := []any{}
 	if energy != nil {
 		energy.BaseDocument.Type = utils.StringPointer(model.ENERGY_TYPE)
@@ -230,6 +237,6 @@ func last24HoursMetricUrl() string {
 func latestEnergyUrl() string {
 	var builder strings.Builder
 	builder.WriteString(baseUrl())
-	builder.WriteString("/_design/views/_view/aggregated_by_time?include_docs=true&descending=true&limit=1")
+	builder.WriteString("/_design/views/_view/energy_by_time?include_docs=true&descending=true&limit=1")
 	return builder.String()
 }

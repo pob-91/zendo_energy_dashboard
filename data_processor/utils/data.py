@@ -9,12 +9,8 @@ def create_data_point(
         "netBalance": latest_energy["powerProductionTotal"]
         - latest_energy["powerConsumptionTotal"],
         "weatherData": {**latest_weather["current"]},
-        "powerProductionData": {
-            **latest_energy["powerProductionBreakdown"]
-        },
-        "powerConsumptionData": {
-            **latest_energy["powerConsumptionBreakdown"]
-        },
+        "powerProductionData": {**latest_energy["powerProductionBreakdown"]},
+        "powerConsumptionData": {**latest_energy["powerConsumptionBreakdown"]},
         "correlations": {
             "solar_irradiance_vs_solar_production_correlation": sol_vs_prod,
             "temperature_vs_consumption_correlation": temp_vs_consumption,

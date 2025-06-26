@@ -1,1 +1,1 @@
-docker build -t data-processor .
+docker build -t zendo-data-processor .

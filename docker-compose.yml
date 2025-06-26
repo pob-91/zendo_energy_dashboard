@@ -14,7 +14,7 @@ services:
       - internal_network
 
   data-fetcher:
-    image: data-fetcher
+    image: zendo-data-fetcher
     environment:
       - ZENDO_ENV=dev
       - COUCHDB_USER=api
@@ -37,7 +37,7 @@ services:
       - internal_network
 
   data-processor:
-    image: data-processor
+    image: zendo-data-processor
     environment:
       - ZENDO_ENV=dev
       - COUCHDB_DB=zendo

@@ -15,4 +15,5 @@ WORKDIR /app
 RUN touch .env # empty env file
 RUN uv sync --locked
 
+# TODO: This still downloads dev dependencies when it starts, make it use system python
 ENTRYPOINT ["uv", "run", "main.py"]
