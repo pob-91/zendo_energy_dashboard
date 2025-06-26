@@ -48,7 +48,13 @@ async def fetch_data_and_correlate():
 
 
 async def listen_for_energy_changes():
-    async with aiohttp.ClientSession() as session:
+    # TODO: add retry logic here and handle any connection errors
+    timeout = aiohttp.ClientTimeout(
+        total=None,
+        connect=30,
+        sock_read=None
+    )
+    async with aiohttp.ClientSession(timeout=timeout) as session:
         async with session.get(DataService.energy_change_feed_url()) as resp:
             async for raw_line in resp.content:
                 line = ""
@@ -57,7 +63,8 @@ async def listen_for_energy_changes():
                 elif isinstance(raw_line, str):
                     line = raw_line.strip()
                 else:
-                    logger.error(f"Could not handle change of type {type(raw_line)}")
+                    logger.error(f"Could not handle change of type {
+                                 type(raw_line)}")
                     continue
 
                 if len(line) == 0:
